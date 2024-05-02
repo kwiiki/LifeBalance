@@ -85,6 +85,7 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
 
+    implementation ("com.google.accompanist:accompanist-pager:0.28.0")
 
     implementation ("io.insert-koin:koin-android:3.4.0")
     implementation ("io.insert-koin:koin-androidx-compose:3.4.0")

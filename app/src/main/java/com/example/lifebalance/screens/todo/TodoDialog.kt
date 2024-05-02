@@ -1,8 +1,7 @@
-package com.example.lifebalance.screens.Todo
+package com.example.lifebalance.screens.todo
 
 import android.annotation.SuppressLint
 import android.os.Build
-import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background

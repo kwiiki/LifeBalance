@@ -1,4 +1,6 @@
-package com.example.lifebalance.screens.Todo
+@file:OptIn(ExperimentalPagerApi::class)
+
+package com.example.lifebalance.screens.todo
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -57,16 +59,21 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lifebalance.data.Todo
 import com.example.lifebalance.data.addDate
+import com.example.lifebalance.repositories.getTodayDate
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TodoScreen(viewModel: TodoViewModel = viewModel()) {
-    val todo by viewModel.todo.collectAsState()
-    val (dialogOpen, setDialogOpen) = remember {
-        mutableStateOf(false)
-    }
+    val todosByDate by viewModel.todosByDate.collectAsState()
+    val (dialogOpen, setDialogOpen) = remember { mutableStateOf(false) }
+    val dates = todosByDate.keys.toList()
+    val sortedDates = viewModel.getSortedDates()
+
     if (dialogOpen) {
         val (title, setTitle) = remember {
             mutableStateOf("")
@@ -77,10 +84,13 @@ fun TodoScreen(viewModel: TodoViewModel = viewModel()) {
         val (priceError, setPriceError) = remember {
             mutableStateOf(false)
         }
-        TodoDialog(title,setTitle,price,setPrice,priceError,setPriceError,dialogOpen,setDialogOpen,viewModel)
-        }
 
-    Scaffold(containerColor = MaterialTheme.colorScheme.secondary,
+        TodoDialog(title,setTitle,price,setPrice,priceError,setPriceError,dialogOpen,setDialogOpen,viewModel)
+
+    }
+
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.secondary,
         topBar = {
             TopAppBar(
                 title = {
@@ -107,58 +117,73 @@ fun TodoScreen(viewModel: TodoViewModel = viewModel()) {
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
                 Icon(Icons.Default.Add, contentDescription = null)
-
             }
-        }) { paddings ->
+        }
+    ) { paddings ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddings),
             contentAlignment = Alignment.Center
         ) {
-
-            AnimatedVisibility(
-                visible = todo.isEmpty(),
-                enter = scaleIn() + fadeIn(),
-                exit = scaleOut() + fadeOut()
-            )
-            {
-                Text(text = "No to do Yet!", color = Color.White, fontSize = 50.sp)
+            if (todosByDate.isNotEmpty()) {
+                ViewPager(
+                    dates = sortedDates,
+                    todosByDate = todosByDate,
+                    viewModel = viewModel
+                )
+            } else {
+                Text(
+                    text = "No to do Yet!",
+                    color = Color.White,
+                    fontSize = 50.sp
+                )
             }
-            AnimatedVisibility(
-                visible = todo.isNotEmpty(),
-                enter = scaleIn() + fadeIn(),
-                exit = scaleOut() + fadeOut()
-            )
-            {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(
-                            bottom = paddings.calculateBottomPadding() + 8.dp,
-                            top = 8.dp,
-                            end = 8.dp,
-                            start = 8.dp
-                        ), verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(todo.sortedWith(compareBy({ it.done }, { it.added })), key = { it.id }) { todo ->
-                        TodoItem(
-                            expense = todo,
-                            onClick = { viewModel.updateTodo(todo.copy(done = !todo.done)) },
-                            onDelete = {
-                                viewModel.deleteTodo(todo)
-                            }
-                        )
-                    }
-
-                }
-            }
-
         }
-
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun ViewPager(
+    dates: List<String>,
+    todosByDate: Map<String, List<Todo>>,
+    viewModel: TodoViewModel
+) {
+    val pagerState = rememberPagerState(
+        initialPage = dates.indexOf(getTodayDate())
+    )
+
+    HorizontalPager(
+        state = pagerState,
+        modifier = Modifier.fillMaxSize(),
+        count = dates.size,
+    ) { page ->
+        val date = dates[page]
+        val todos = todosByDate[date] ?: emptyList()
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            item {
+                Text(
+                    text = date,
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+            items(todos) { todo ->
+                TodoItem(
+                    expense = todo,
+                    onClick = { viewModel.updateTodo(todo.copy(done = !todo.done)) },
+                    onDelete = { viewModel.deleteTodo(todo) }
+                )
+            }
+        }
+    }
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -180,6 +205,7 @@ fun LazyItemScope.TodoItem(expense: Todo, onClick: () -> Unit, onDelete: () -> U
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+
                 .clip(RoundedCornerShape(5.dp))
                 .background(color)
                 .clickable {
@@ -247,9 +273,11 @@ fun LazyItemScope.TodoItem(expense: Todo, onClick: () -> Unit, onDelete: () -> U
                     Icons.Default.Delete,
                     tint = Color.White,
                     contentDescription = null,
-                    modifier = Modifier.size(25.dp).clickable {
-                        onDelete()
-                    })
+                    modifier = Modifier
+                        .size(25.dp)
+                        .clickable {
+                            onDelete()
+                        })
 
             }
 

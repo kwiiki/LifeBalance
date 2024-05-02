@@ -27,7 +27,6 @@ data class Todo(
     @ColumnInfo("added")
     val added: Long = System.currentTimeMillis()
 )
-
 val Todo.addDate: String
     @SuppressLint("SimpleDateFormat")
     get() {
@@ -37,3 +36,11 @@ val Todo.addDate: String
         val dateFormat = SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.getDefault())
         return dateFormat.format(calendar.time)
     }
+
+fun Todo.getDate(): String {
+    val calendar = Calendar.getInstance()
+    calendar.timeInMillis = added
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    return dateFormat.format(calendar.time)
+}
+

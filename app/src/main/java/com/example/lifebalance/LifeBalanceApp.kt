@@ -24,8 +24,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.lifebalance.navigation.BottomNavigationItem
 import com.example.lifebalance.navigation.Screens
 import com.example.lifebalance.screens.Expense.ExpenseScreen
-import com.example.lifebalance.screens.Todo.TodoScreen
-import com.example.lifebalance.screens.Just
+import com.example.lifebalance.screens.todo.TodoScreen
 
 
 @RequiresApi(Build.VERSION_CODES.O)
