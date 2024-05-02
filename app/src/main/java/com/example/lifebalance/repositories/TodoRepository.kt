@@ -11,4 +11,5 @@ interface TodoRepository {
     suspend fun addTodo(expense: Todo)
     suspend fun updateTodo(expense: Todo)
     suspend fun deleteTodo(expense: Todo)
+    fun getSortedDates(todosByDate: HashMap<String, List<Todo>>): List<String>
 }

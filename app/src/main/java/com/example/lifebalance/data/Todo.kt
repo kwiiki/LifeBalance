@@ -40,7 +40,7 @@ val Todo.addDate: String
 fun Todo.getDate(): String {
     val calendar = Calendar.getInstance()
     calendar.timeInMillis = added
-    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
     return dateFormat.format(calendar.time)
 }
 

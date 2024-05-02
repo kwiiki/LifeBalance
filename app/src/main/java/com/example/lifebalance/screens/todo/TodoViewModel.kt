@@ -28,20 +28,7 @@ class TodoViewModel:ViewModel(),KoinComponent {
     }
 
     fun getSortedDates(): List<String> {
-        val todayDate = getTodayDate()
-        val dates = todosByDate.value.keys.toList()
-
-        val sortedDates = dates.filter { it >= todayDate }
-            .sortedWith(
-                compareBy<String> { date ->
-                    when {
-                        date == todayDate -> 0
-                        else -> 1
-                    }
-                }.thenByDescending { it }
-            )
-
-        return sortedDates
+        return repository.getSortedDates(todosByDate.value)
     }
 
     private fun getTodo() {
@@ -66,4 +53,5 @@ class TodoViewModel:ViewModel(),KoinComponent {
             repository.deleteTodo(todo)
         }
     }
+
 }

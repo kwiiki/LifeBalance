@@ -2,14 +2,13 @@ package com.example.lifebalance.repositories
 
 import com.example.lifebalance.data.Todo
 import com.example.lifebalance.data.TodoDatabase
-import com.example.lifebalance.data.addDate
 import com.example.lifebalance.data.getDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
-import java.util.SortedMap
 
 
 class TodoRepositoryImpl(private val todoDatabase: TodoDatabase) : TodoRepository {
@@ -35,10 +34,30 @@ class TodoRepositoryImpl(private val todoDatabase: TodoDatabase) : TodoRepositor
 
     override suspend fun deleteTodo(expense: Todo) = dao.deleteTodo(expense)
 
+    override fun getSortedDates(todosByDate: HashMap<String, List<Todo>>): List<String> {
+        val todayDate = getTodayDate()
+        val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+
+        val dates = todosByDate.keys.toList()
+            .map { dateFormat.parse(it) }
+            .filterNotNull()
+            .filter { it.time >= (dateFormat.parse(todayDate)?.time ?: 0L) }
+
+        return dates.sortedWith(
+            compareBy<Date> { date ->
+                when {
+                    date == dateFormat.parse(todayDate) -> 0
+                    date.before(dateFormat.parse(todayDate)) -> 1
+                    else -> 2
+                }
+            }.thenBy { it }
+        ).map { dateFormat.format(it) }
+    }
+
 }
 
 fun getTodayDate(): String {
     val calendar = Calendar.getInstance()
-    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
     return dateFormat.format(calendar.time)
 }

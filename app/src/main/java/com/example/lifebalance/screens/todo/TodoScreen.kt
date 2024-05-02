@@ -63,6 +63,9 @@ import com.example.lifebalance.repositories.getTodayDate
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,7 +88,17 @@ fun TodoScreen(viewModel: TodoViewModel = viewModel()) {
             mutableStateOf(false)
         }
 
-        TodoDialog(title,setTitle,price,setPrice,priceError,setPriceError,dialogOpen,setDialogOpen,viewModel)
+        TodoDialog(
+            title,
+            setTitle,
+            price,
+            setPrice,
+            priceError,
+            setPriceError,
+            dialogOpen,
+            setDialogOpen,
+            viewModel
+        )
 
     }
 
@@ -130,8 +143,9 @@ fun TodoScreen(viewModel: TodoViewModel = viewModel()) {
                 ViewPager(
                     dates = sortedDates,
                     todosByDate = todosByDate,
-                    viewModel = viewModel
-                )
+                    viewModel = viewModel,
+
+                    )
             } else {
                 Text(
                     text = "No to do Yet!",
@@ -156,29 +170,36 @@ fun ViewPager(
 
     HorizontalPager(
         state = pagerState,
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 8.dp),
         count = dates.size,
     ) { page ->
         val date = dates[page]
         val todos = todosByDate[date] ?: emptyList()
 
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                ,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item {
                 Text(
                     text = date,
                     color = Color.White,
-                    fontSize = 20.sp,
-                    modifier = Modifier.padding(16.dp)
+                    fontSize = 25.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    textAlign = TextAlign.Center
                 )
             }
             items(todos) { todo ->
                 TodoItem(
                     expense = todo,
                     onClick = { viewModel.updateTodo(todo.copy(done = !todo.done)) },
-                    onDelete = { viewModel.deleteTodo(todo) }
+                    onDelete = { viewModel.deleteTodo(todo) },
                 )
             }
         }
