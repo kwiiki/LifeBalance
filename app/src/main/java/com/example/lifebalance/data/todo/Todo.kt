@@ -1,4 +1,4 @@
-package com.example.lifebalance.data
+package com.example.lifebalance.data.todo
 
 import android.annotation.SuppressLint
 import androidx.room.ColumnInfo
@@ -6,7 +6,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 
 @Entity(tableName = "todo")
@@ -33,7 +32,7 @@ val Todo.addDate: String
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = added
 
-        val dateFormat = SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.getDefault())
+        val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
         return dateFormat.format(calendar.time)
     }
 

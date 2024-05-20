@@ -2,7 +2,9 @@ package com.example.lifebalance.di
 
 import android.app.Application
 import androidx.room.Room
-import com.example.lifebalance.data.TodoDatabase
+import com.example.lifebalance.data.LifeBalanceDatabase
+import com.example.lifebalance.repositories.ExpenseRepository
+import com.example.lifebalance.repositories.ExpenseRepositoryImpl
 import com.example.lifebalance.repositories.TodoRepository
 import com.example.lifebalance.repositories.TodoRepositoryImpl
 import org.koin.core.context.startKoin
@@ -21,8 +23,8 @@ class KoinStart : Application() {
         single {
             Room.databaseBuilder(
                 applicationContext,
-                TodoDatabase::class.java,
-                "todo_database"
+                LifeBalanceDatabase::class.java,
+                "db"
             )
                 .fallbackToDestructiveMigration()
                 .build()
@@ -31,7 +33,10 @@ class KoinStart : Application() {
 
     private val repositoryModule = module {
         single<TodoRepository> {
-            TodoRepositoryImpl(todoDatabase = get())
+            TodoRepositoryImpl(lifeBalanceDatabase = get())
+        }
+        single<ExpenseRepository> {
+            ExpenseRepositoryImpl(database = get())
         }
     }
 }

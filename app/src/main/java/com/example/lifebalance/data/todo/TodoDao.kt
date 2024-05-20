@@ -1,4 +1,4 @@
-package com.example.lifebalance.data
+package com.example.lifebalance.data.todo
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -21,5 +21,7 @@ interface TodoDao {
     fun updateTodo(todo: Todo)
 
     @Delete
-    fun deleteTodo(todo:Todo)
+    fun deleteTodo(todo: Todo)
+    @Query("DELETE FROM 'todo'")
+    suspend fun clearDatabase()
 }

@@ -95,4 +95,7 @@ dependencies {
 
     implementation ("io.github.vanpra.compose-material-dialogs:core:0.9.0")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+
+    implementation ("androidx.datastore:datastore-preferences:1.1.1")
+    implementation("androidx.datastore:datastore-preferences-core:1.1.1")
 }

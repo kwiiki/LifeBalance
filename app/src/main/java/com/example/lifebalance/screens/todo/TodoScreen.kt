@@ -1,4 +1,6 @@
-@file:OptIn(ExperimentalPagerApi::class)
+@file:OptIn(ExperimentalPagerApi::class, ExperimentalPagerApi::class, ExperimentalPagerApi::class,
+    ExperimentalPagerApi::class
+)
 
 package com.example.lifebalance.screens.todo
 
@@ -6,6 +8,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -19,6 +22,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -57,15 +61,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.lifebalance.data.Todo
-import com.example.lifebalance.data.addDate
+import com.example.lifebalance.data.todo.Todo
+import com.example.lifebalance.data.todo.addDate
 import com.example.lifebalance.repositories.getTodayDate
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,14 +75,11 @@ import java.util.Locale
 fun TodoScreen(viewModel: TodoViewModel = viewModel()) {
     val todosByDate by viewModel.todosByDate.collectAsState()
     val (dialogOpen, setDialogOpen) = remember { mutableStateOf(false) }
-    val dates = todosByDate.keys.toList()
-    val sortedDates = viewModel.getSortedDates()
-
     if (dialogOpen) {
         val (title, setTitle) = remember {
             mutableStateOf("")
         }
-        val (price, setPrice) = remember {
+        val (description, setDescription) = remember {
             mutableStateOf("")
         }
         val (priceError, setPriceError) = remember {
@@ -91,8 +89,8 @@ fun TodoScreen(viewModel: TodoViewModel = viewModel()) {
         TodoDialog(
             title,
             setTitle,
-            price,
-            setPrice,
+            description,
+            setDescription,
             priceError,
             setPriceError,
             dialogOpen,
@@ -141,11 +139,10 @@ fun TodoScreen(viewModel: TodoViewModel = viewModel()) {
         ) {
             if (todosByDate.isNotEmpty()) {
                 ViewPager(
-                    dates = sortedDates,
+                    dates = viewModel.getSortedDates(),
                     todosByDate = todosByDate,
-                    viewModel = viewModel,
-
-                    )
+                    viewModel = viewModel
+                )
             } else {
                 Text(
                     text = "No to do Yet!",
@@ -165,42 +162,47 @@ fun ViewPager(
     viewModel: TodoViewModel
 ) {
     val pagerState = rememberPagerState(
-        initialPage = dates.indexOf(getTodayDate())
+        initialPage = if (dates.contains(getTodayDate())) dates.indexOf(getTodayDate()) else 0
     )
 
     HorizontalPager(
         state = pagerState,
         modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 8.dp),
+            .fillMaxSize(0.95f),
         count = dates.size,
+        itemSpacing = 16.dp,
+        contentPadding = PaddingValues(horizontal = 8.dp),
     ) { page ->
         val date = dates[page]
         val todos = todosByDate[date] ?: emptyList()
 
-        LazyColumn(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                ,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .animateContentSize()
         ) {
-            item {
-                Text(
-                    text = date,
-                    color = Color.White,
-                    fontSize = 25.sp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    textAlign = TextAlign.Center
-                )
-            }
-            items(todos) { todo ->
-                TodoItem(
-                    expense = todo,
-                    onClick = { viewModel.updateTodo(todo.copy(done = !todo.done)) },
-                    onDelete = { viewModel.deleteTodo(todo) },
-                )
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .animateContentSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                item {
+                    Text(
+                        text = date,
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        modifier = Modifier.fillMaxWidth().padding(4.dp),
+                        textAlign = TextAlign.Center
+                    )
+                }
+                items(todos) { todo ->
+                    TodoItem(
+                        todo = todo,
+                        onClick = { viewModel.updateTodo(todo.copy(done = !todo.done)) },
+                        onDelete = { viewModel.deleteTodo(todo) },
+                    )
+                }
             }
         }
     }
@@ -208,9 +210,9 @@ fun ViewPager(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun LazyItemScope.TodoItem(expense: Todo, onClick: () -> Unit, onDelete: () -> Unit) {
+fun LazyItemScope.TodoItem(todo: Todo, onClick: () -> Unit, onDelete: () -> Unit) {
     val color by animateColorAsState(
-        targetValue = if (expense.done) Color(0xff24d65f) else Color(0xffff6363),
+        targetValue = if (todo.done) Color(0xff24d65f) else Color(0xffff6363),
         animationSpec = tween(500), label = ""
     )
     Box(
@@ -248,7 +250,7 @@ fun LazyItemScope.TodoItem(expense: Todo, onClick: () -> Unit, onDelete: () -> U
                 ) {
                     Row(modifier = Modifier) {
                         AnimatedVisibility(
-                            visible = expense.done,
+                            visible = todo.done,
                             enter = scaleIn() + fadeIn(),
                             exit = scaleOut() + fadeOut()
                         ) {
@@ -257,7 +259,7 @@ fun LazyItemScope.TodoItem(expense: Todo, onClick: () -> Unit, onDelete: () -> U
                     }
                     Row(modifier = Modifier) {
                         AnimatedVisibility(
-                            visible = !expense.done,
+                            visible = !todo.done,
                             enter = scaleIn() + fadeIn(),
                             exit = scaleOut() + fadeOut()
                         ) {
@@ -267,13 +269,13 @@ fun LazyItemScope.TodoItem(expense: Todo, onClick: () -> Unit, onDelete: () -> U
                 }
                 Column {
                     Text(
-                        text = expense.title,
+                        text = todo.title,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
                         color = Color.White
                     )
                     Text(
-                        text = expense.description,
+                        text = todo.description,
                         fontSize = 12.sp,
                         color = Color(0xffebebeb)
                     )
@@ -305,7 +307,7 @@ fun LazyItemScope.TodoItem(expense: Todo, onClick: () -> Unit, onDelete: () -> U
 
         }
         Text(
-            text = expense.addDate,
+            text = todo.addDate,
             modifier = Modifier.padding(4.dp),
             color = Color(0xffebebeb),
             fontSize = 14.sp

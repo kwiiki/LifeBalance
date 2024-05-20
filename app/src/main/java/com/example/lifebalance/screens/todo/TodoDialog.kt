@@ -1,17 +1,23 @@
 package com.example.lifebalance.screens.todo
 
+//noinspection UsingMaterialAndMaterial3Libraries
 import android.annotation.SuppressLint
+import android.app.TimePickerDialog
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Surface
 import androidx.compose.material.TextButton
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -39,8 +45,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.example.lifebalance.data.Todo
-import com.example.lifebalance.screens.TimePickerDialog
+import androidx.compose.ui.window.DialogProperties
+import com.example.lifebalance.data.todo.Todo
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -142,7 +148,7 @@ fun TodoDialog(
                                 }
                             }
                         ) {
-                            Text("OK")
+                            Text("OK", color = Color.White)
                         }
                     },
                     dismissButton = {
@@ -151,9 +157,10 @@ fun TodoDialog(
                                 showDatePicker = false
                             }
                         ) {
-                            Text("Cancel")
+                            Text("Cancel",color = Color.White)
                         }
-                    }
+                    },
+             //       colors = DatePickerColors(containerColor = Color.White, currentYearContentColor = Color.White)
                 ) {
                     DatePicker(state = datePickerState)
                 }
@@ -161,7 +168,7 @@ fun TodoDialog(
 
             if (showTimePicker) {
                 TimePickerDialog(
-                    onDismissRequest = { "w" },
+                    onDismissRequest = {  },
                     confirmButton = {
                         TextButton(
                             onClick = {
@@ -181,11 +188,16 @@ fun TodoDialog(
                                     } else {
                                         selectedDateTime = selectedDate.atTime(selectedTime)
                                         selectedDateTimeMillis = selectedDateTime?.atZone(ZoneId.systemDefault())?.toInstant()?.toEpochMilli()!!
-                                        Toast.makeText(
+                                        /**            Toast.makeText(
                                             context,
-                                            "Selected date $selectedDateTime saved",
+                                            "Selected date saved",
                                             Toast.LENGTH_SHORT
-                                        ).show()
+                                        ).show()  **/
+                            /**            Toast.makeText(
+                                            context,
+                                            "Selected date saved",
+                                            Toast.LENGTH_SHORT
+                                        ).show()  **/
                                         showTimePicker = false
                                     }
                                 } else {
@@ -206,7 +218,7 @@ fun TodoDialog(
                                 showTimePicker = false
                             }
                         ) {
-                            Text("Cancel")
+                            Text("Cancel", color = Color.White)
                         }
                     }
                 ) {
@@ -225,6 +237,11 @@ fun TodoDialog(
                                 done = false
                             )
                         )
+                        Toast.makeText(
+                            context,
+                            "Selected date saved",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         setDialogOpen(false)
                     }
                 },
@@ -240,6 +257,58 @@ fun TodoDialog(
         }
     }
 
+}
+@Composable
+fun TimePickerDialog(
+    title: String = "Select Time",
+    onDismissRequest: () -> Unit,
+    confirmButton: @Composable (() -> Unit),
+    dismissButton: @Composable (() -> Unit)? = null,
+    containerColor: Color = MaterialTheme.colorScheme.surface,
+    content: @Composable () -> Unit,
+) {
+    Dialog(
+        onDismissRequest = onDismissRequest,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false
+        ),
+    ) {
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+// tonalElevation = 6.dp,
+            modifier = Modifier
+                .width(IntrinsicSize.Min)
+                .height(IntrinsicSize.Min)
+                .background(
+                    shape = MaterialTheme.shapes.extraLarge,
+                    color = containerColor
+                ),
+            color = containerColor
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                androidx.compose.material.Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 20.dp),
+                    text = title,
+                    style = MaterialTheme.typography.labelMedium
+                )
+                content()
+                Row(
+                    modifier = Modifier
+                        .height(40.dp)
+                        .fillMaxWidth()
+                ) {
+                    Spacer(modifier = Modifier.weight(1f))
+                    dismissButton?.invoke()
+                    confirmButton()
+                }
+            }
+        }
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)

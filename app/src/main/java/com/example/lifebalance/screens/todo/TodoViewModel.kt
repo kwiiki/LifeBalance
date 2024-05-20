@@ -2,39 +2,59 @@ package com.example.lifebalance.screens.todo
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.lifebalance.data.Todo
-import com.example.lifebalance.data.addDate
+import com.example.lifebalance.data.todo.Todo
 import com.example.lifebalance.repositories.TodoRepository
-import com.example.lifebalance.repositories.getTodayDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.util.SortedMap
 
 class TodoViewModel:ViewModel(),KoinComponent {
 
-    private val repository:TodoRepository by inject()
+    private val repository: TodoRepository by inject()
 
-    private val _todosByDate: MutableStateFlow<HashMap<String, List<Todo>>> = MutableStateFlow(hashMapOf())
-    val todosByDate = _todosByDate.asStateFlow()
+    private val _todosByDate = MutableStateFlow<Map<String, List<Todo>>>(emptyMap())
+    val todosByDate: StateFlow<Map<String, List<Todo>>> = _todosByDate
 
 
     init {
+//      clearDatabase()
         getTodo()
     }
 
-    fun getSortedDates(): List<String> {
+     fun getSortedDates(): List<String> {
         return repository.getSortedDates(todosByDate.value)
     }
+ /**   private fun getTodos() {
+        viewModelScope.launch {
+            repository.getTodo()
+                .map { todos ->
+                    val todosByDate = HashMap<String, List<Todo>>()
+
+                    todos.forEach { todo ->
+                        val date = todo.getDate()
+                        val list = todosByDate[date] ?: emptyList()
+                        todosByDate[date] = list + todo
+                    }
+
+                    todosByDate
+                }
+                .catch { exception ->
+                    // Обработка ошибок
+                    Log.e("TodoViewModel", "Error fetching todos: $exception")
+                }
+                .collect { data ->
+                    _todosByDate.value = data
+                }
+        }
+    } **/
 
     private fun getTodo() {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getTodosByDate().collect  { data ->
-                _todosByDate.update { data }
+            repository.getTodosByDate().collect { data ->
+                _todosByDate.value = data
             }
         }
     }
@@ -51,6 +71,11 @@ class TodoViewModel:ViewModel(),KoinComponent {
     fun deleteTodo(todo: Todo){
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteTodo(todo)
+        }
+    }
+    fun clearDatabase() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.clearDatabase()
         }
     }
 

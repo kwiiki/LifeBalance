@@ -29,6 +29,7 @@ data class BottomNavigationItem(
                 icon = Icons.Filled.Person,
                 route = Screens.Profile.route
             ),
+
         )
     }
 }
