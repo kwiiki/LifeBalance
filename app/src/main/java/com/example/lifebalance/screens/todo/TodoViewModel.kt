@@ -11,72 +11,45 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class TodoViewModel:ViewModel(),KoinComponent {
+class TodoViewModel : ViewModel(), KoinComponent {
 
     private val repository: TodoRepository by inject()
 
     private val _todosByDate = MutableStateFlow<Map<String, List<Todo>>>(emptyMap())
     val todosByDate: StateFlow<Map<String, List<Todo>>> = _todosByDate
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
 
     init {
-//      clearDatabase()
         getTodo()
     }
-
-     fun getSortedDates(): List<String> {
+    fun getSortedDates(): List<String> {
         return repository.getSortedDates(todosByDate.value)
     }
- /**   private fun getTodos() {
-        viewModelScope.launch {
-            repository.getTodo()
-                .map { todos ->
-                    val todosByDate = HashMap<String, List<Todo>>()
-
-                    todos.forEach { todo ->
-                        val date = todo.getDate()
-                        val list = todosByDate[date] ?: emptyList()
-                        todosByDate[date] = list + todo
-                    }
-
-                    todosByDate
-                }
-                .catch { exception ->
-                    // Обработка ошибок
-                    Log.e("TodoViewModel", "Error fetching todos: $exception")
-                }
-                .collect { data ->
-                    _todosByDate.value = data
-                }
-        }
-    } **/
 
     private fun getTodo() {
         viewModelScope.launch(Dispatchers.IO) {
+            _isLoading.value = true
             repository.getTodosByDate().collect { data ->
                 _todosByDate.value = data
+                _isLoading.value = false
             }
         }
     }
-    fun addTodo(todo: Todo){
+    fun addTodo(todo: Todo) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.addTodo(todo)
         }
     }
-    fun updateTodo(todo: Todo){
+    fun updateTodo(todo: Todo) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.updateTodo(todo)
         }
     }
-    fun deleteTodo(todo: Todo){
+    fun deleteTodo(todo: Todo) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteTodo(todo)
         }
     }
-    fun clearDatabase() {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.clearDatabase()
-        }
-    }
-
 }

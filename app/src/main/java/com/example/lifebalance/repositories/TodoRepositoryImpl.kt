@@ -1,7 +1,10 @@
 package com.example.lifebalance.repositories
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.example.lifebalance.data.todo.Todo
 import com.example.lifebalance.data.LifeBalanceDatabase
+import com.example.lifebalance.data.todo.addDate
 import com.example.lifebalance.data.todo.getDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -10,12 +13,14 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
 
-class TodoRepositoryImpl(private val lifeBalanceDatabase: LifeBalanceDatabase) : TodoRepository {
+class TodoRepositoryImpl(lifeBalanceDatabase: LifeBalanceDatabase) : TodoRepository {
     private val dao = lifeBalanceDatabase.todoDao()
 
     private val _todosByDate = dao.getTodo()
@@ -38,9 +43,32 @@ class TodoRepositoryImpl(private val lifeBalanceDatabase: LifeBalanceDatabase) :
 
     override suspend fun getTodo(): Flow<List<Todo>> = dao.getTodo()
 
-    override suspend fun getTodosByDate(): Flow<HashMap<String, List<Todo>>> = _todosByDate
+    @RequiresApi(Build.VERSION_CODES.O)
+    override suspend fun getTodosByDate(): Flow<HashMap<String, List<Todo>>> {
+        val currentDateString = getCurrentDateString()
+        return dao.getTodo()
+            .map { todos ->
+                val filteredTodos = todos.filter { todo ->
+                    todo.addDate >= currentDateString
+                }
+                val todosByDate = HashMap<String, List<Todo>>()
 
-    override suspend fun addTodo(expense: Todo) = dao.addTodo(expense)
+                filteredTodos.forEach { todo ->
+                    val date = todo.getDate()
+                    val list = todosByDate[date] ?: emptyList()
+                    todosByDate[date] = list + todo
+                }
+
+                todosByDate
+            }
+            .shareIn(
+                scope = CoroutineScope(Dispatchers.IO),
+                started = SharingStarted.WhileSubscribed(),
+                replay = 1
+            )
+    }
+
+    override fun addTodo(expense: Todo) = dao.addTodo(expense)
 
     override suspend fun updateTodo(expense: Todo) = dao.updateTodo(expense)
 
@@ -74,4 +102,11 @@ fun getTodayDate(): String {
     val calendar = Calendar.getInstance()
     val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
     return dateFormat.format(calendar.time)
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun getCurrentDateString(): String {
+    val currentDate = LocalDate.now()
+    val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+    return currentDate.format(formatter)
 }

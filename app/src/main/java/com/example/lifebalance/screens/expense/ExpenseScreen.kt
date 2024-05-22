@@ -59,15 +59,14 @@ fun ExpenseScreen(modifier: Modifier, viewModel: ExpenseViewModel = viewModel())
     val totalExpense by viewModel.totalExpense.collectAsState()
 
     val (dialogOpen, setDialogOpen) = remember { mutableStateOf(false) }
-    val (title, setTitle) = remember { mutableStateOf("") }
-    val (price, setPrice) = remember { mutableStateOf("") }
-    val (priceError, setPriceError) = remember { mutableStateOf(false) }
-    val (description, setDescription) = remember { mutableStateOf(false) }
+  //  val (title, setTitle) = remember { mutableStateOf("") }
+  //  val (price, setPrice) = remember { mutableStateOf("") }
+  //  val (priceError, setPriceError) = remember { mutableStateOf(false) }
+  //  val (description, setDescription) = remember { mutableStateOf(false) }
 
     if (dialogOpen) {
         ExpenseDialogScreen(
             setDialogOpen = setDialogOpen,
-            setPrice = setPrice,
             viewModel = viewModel
         )
     }
@@ -258,11 +257,6 @@ fun ExpenseItem(expense: Expense) {
             ) {
                 Text(
                     text = expense.price.toString() + "tg",
-//                    if (transaction.transactionType == "Expense") {
-//                        "-$${transaction.amount}"
-//                    } else {
-//                        "+$${transaction.amount}"
-//                    },
                     color = Color.White,
                     fontSize = 16.sp,
                 )
@@ -282,7 +276,6 @@ fun ExpenseItem(expense: Expense) {
 @Composable
 fun ExpenseScreenPreview() {
     ExpenseItem(Expense(1, "wefw", 55, TransactionType.EXPENSE, ExpenseType.EDUCATION, "efwe"))
-    //  SummaryMiniCard(color = Color.White, imageVector = Icons.Outlined.ArrowUpward, heading = "rf", content = "Ef" )
 }
 
 
@@ -322,41 +315,3 @@ fun SummaryMiniCard(
 }
 
 
-/**@Composable
-fun SummaryMiniCard(
-color: Color,
-imageVector: ImageVector,
-heading: String,
-content: String
-) {
-Card(
-modifier = Modifier
-.width(150.dp)
-.height(100.dp),
-backgroundColor = color,
-shape = RoundedCornerShape(16.dp)
-) {
-Column(
-modifier = Modifier.padding(16.dp),
-verticalArrangement = Arrangement.Center,
-horizontalAlignment = Alignment.Start
-) {
-Icon(
-imageVector = imageVector,
-contentDescription = null,
-tint = Color.White
-)
-Text(
-text = heading,
-fontSize = 14.sp,
-color = Color.White
-)
-Text(
-text = content,
-fontSize = 18.sp,
-fontWeight = FontWeight.Bold,
-color = Color.White
-)
-}
-}
-} **/

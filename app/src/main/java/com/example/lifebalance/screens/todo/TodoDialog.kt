@@ -2,7 +2,6 @@ package com.example.lifebalance.screens.todo
 
 //noinspection UsingMaterialAndMaterial3Libraries
 import android.annotation.SuppressLint
-import android.app.TimePickerDialog
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -42,7 +41,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -61,13 +59,9 @@ fun TodoDialog(
     setTitle: (String) -> Unit,
     description: String,
     setDescription: (String) -> Unit,
-    priceError: Boolean,
-    setPriceError: (Boolean) -> Unit,
-    dialogOpen: Boolean,
     setDialogOpen: (Boolean) -> Unit,
     viewModel: TodoViewModel
 ) {
-    val showDialog = mutableStateOf(false)
     val datePickerState = rememberDatePickerState()
     var showDatePicker by remember { mutableStateOf(false) }
 
@@ -103,19 +97,16 @@ fun TodoDialog(
             Spacer(modifier = Modifier.height(4.dp))
             OutlinedTextField(
                 value = description,
-                onValueChange = { newDescription ->
-                    setDescription(newDescription)
-                },
+                onValueChange = { setDescription(it) },
                 modifier = Modifier.fillMaxWidth(),
                 label = {
-                    Text(text = "Description")
+                    Text(text = "Description (optional)")
                 },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color.White,
                     focusedLabelColor = Color.White,
                 ),
                 textStyle = TextStyle(color = Color.White),
-                isError = priceError
             )
             Spacer(modifier = Modifier.height(18.dp))
             Button(
@@ -126,7 +117,6 @@ fun TodoDialog(
             ) {
                 Text(text = "Choose a time", color = Color.White)
             }
-
             if (showDatePicker) {
                 DatePickerDialog(
                     onDismissRequest = { /*TODO*/ },
@@ -136,7 +126,10 @@ fun TodoDialog(
                                 val selectedDate = datePickerState.selectedDateMillis?.let {
                                     LocalDate.ofEpochDay(it / 86400000)
                                 }
-                                if (selectedDate != null && selectedDate.isAfter(LocalDate.now().minusDays(1))) {
+                                if (selectedDate != null && selectedDate.isAfter(
+                                        LocalDate.now().minusDays(1)
+                                    )
+                                ) {
                                     showDatePicker = false
                                     showTimePicker = true
                                 } else {
@@ -157,10 +150,9 @@ fun TodoDialog(
                                 showDatePicker = false
                             }
                         ) {
-                            Text("Cancel",color = Color.White)
+                            Text("Cancel", color = Color.White)
                         }
                     },
-             //       colors = DatePickerColors(containerColor = Color.White, currentYearContentColor = Color.White)
                 ) {
                     DatePicker(state = datePickerState)
                 }
@@ -168,18 +160,25 @@ fun TodoDialog(
 
             if (showTimePicker) {
                 TimePickerDialog(
-                    onDismissRequest = {  },
+                    onDismissRequest = { },
                     confirmButton = {
                         TextButton(
                             onClick = {
                                 val selectedDate = datePickerState.selectedDateMillis?.let {
                                     LocalDate.ofEpochDay(it / 86400000)
                                 }
-                                val selectedTime = LocalTime.of(timePickerState.hour, timePickerState.minute)
+                                val selectedTime =
+                                    LocalTime.of(timePickerState.hour, timePickerState.minute)
 
 
-                                if (selectedDate != null && selectedDate.isAfter(LocalDate.now().minusDays(1))) {
-                                    if (selectedDate.isEqual(LocalDate.now()) && selectedTime.isBefore(LocalTime.now())) {
+                                if (selectedDate != null && selectedDate.isAfter(
+                                        LocalDate.now().minusDays(1)
+                                    )
+                                ) {
+                                    if (selectedDate.isEqual(LocalDate.now()) && selectedTime.isBefore(
+                                            LocalTime.now()
+                                        )
+                                    ) {
                                         Toast.makeText(
                                             context,
                                             "Selected time should be after the current time, please select again",
@@ -187,17 +186,14 @@ fun TodoDialog(
                                         ).show()
                                     } else {
                                         selectedDateTime = selectedDate.atTime(selectedTime)
-                                        selectedDateTimeMillis = selectedDateTime?.atZone(ZoneId.systemDefault())?.toInstant()?.toEpochMilli()!!
-                                        /**            Toast.makeText(
+                                        selectedDateTimeMillis =
+                                            selectedDateTime?.atZone(ZoneId.systemDefault())
+                                                ?.toInstant()?.toEpochMilli()!!
+                                        Toast.makeText(
                                             context,
                                             "Selected date saved",
                                             Toast.LENGTH_SHORT
-                                        ).show()  **/
-                            /**            Toast.makeText(
-                                            context,
-                                            "Selected date saved",
-                                            Toast.LENGTH_SHORT
-                                        ).show()  **/
+                                        ).show()
                                         showTimePicker = false
                                     }
                                 } else {
@@ -225,24 +221,27 @@ fun TodoDialog(
                     TimePicker(state = timePickerState)
                 }
             }
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(2.dp))
             Button(
                 onClick = {
-                    if (title.isNotEmpty() && description.isNotEmpty() && !priceError) {
-                        viewModel.addTodo(
-                            Todo(
-                                title = title,
-                                description = description,
-                                added = selectedDateTimeMillis,
-                                done = false
+                    if (title.isNotEmpty()) {
+                        if (selectedDateTime == null) {
+                            Toast.makeText(
+                                context,
+                                "Please select a date and time",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            viewModel.addTodo(
+                                Todo(
+                                    title = title,
+                                    description = description,
+                                    added = selectedDateTimeMillis,
+                                    done = false
+                                )
                             )
-                        )
-                        Toast.makeText(
-                            context,
-                            "Selected date saved",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        setDialogOpen(false)
+                            setDialogOpen(false)
+                        }
                     }
                 },
                 shape = RoundedCornerShape(5.dp),
@@ -256,7 +255,6 @@ fun TodoDialog(
             }
         }
     }
-
 }
 @Composable
 fun TimePickerDialog(
@@ -275,7 +273,6 @@ fun TimePickerDialog(
     ) {
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
-// tonalElevation = 6.dp,
             modifier = Modifier
                 .width(IntrinsicSize.Min)
                 .height(IntrinsicSize.Min)
@@ -309,21 +306,4 @@ fun TimePickerDialog(
             }
         }
     }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview
-@Composable
-fun PreviewTodoDialog() {
-    TodoDialog(
-        title = "Sample Title",
-        setTitle = { /* TODO: Implement */ },
-        description = "100",
-        setDescription = { /* TODO: Implement */ },
-        priceError = false,
-        setPriceError = { /* TODO: Implement */ },
-        dialogOpen = true,
-        setDialogOpen = { /* TODO: Implement */ },
-        viewModel = TodoViewModel() // Замените на ваш экземпляр TodoViewModel
-    )
 }
