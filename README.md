@@ -13,14 +13,12 @@ Anyone looking to improve their time management and financial awareness
 We're committed to continuous improvement! Stay tuned for exciting new features and enhancements.
 
 💡 Get Started ready to take control of your tasks and expenses? Clone this repo and start your journey to better organization today!
-![Screenshot_2024-07-15-15-31-58-659_com example lifebalance](https://github.com/user-attachments/assets/f093b737-6787-4335-b0ae-2f09faf02bed)
-![Screenshot_2024-07-15-15-31-53-589_com example lifebalance](https://github.com/user-attachments/assets/ff36ee76-95a6-483a-a5a4-bc583b2bf8d8)
-![Screenshot_2024-07-15-15-31-32-062_com example lifebalance](https://github.com/user-attachments/assets/cc3fd298-c7c4-4f74-bd6e-8b9843596702)
-![photo_2024-07-15_15-41-48](https://github.com/user-attachments/assets/6905ef84-b5f6-46c1-ae4c-b423d225ff58)
-![photo_2024-07-15_15-41-45](https://github.com/user-attachments/assets/698f2e95-217a-4acf-ad78-541ebe809961)
 
 
 
 
-
-
+![photo_5_2024-07-15_15-54-41](https://github.com/user-attachments/assets/c8394d13-da0e-4523-85c7-80d670cf938b)
+![photo_4_2024-07-15_15-54-41](https://github.com/user-attachments/assets/69a1c84b-ba2e-4b9b-98ef-9cea7f76a551)
+![photo_3_2024-07-15_15-54-41](https://github.com/user-attachments/assets/4f868c24-e74a-4d1f-8b21-8f1e2099159b)
+![photo_2_2024-07-15_15-54-41](https://github.com/user-attachments/assets/b222dc67-072a-4e9a-ae47-4f2113b89f07)
+![photo_1_2024-07-15_15-54-41](https://github.com/user-attachments/assets/563cfc83-d8c4-45eb-8028-70806c1ba4fb)
