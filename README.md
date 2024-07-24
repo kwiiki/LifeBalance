@@ -19,9 +19,6 @@ We're committed to continuous improvement! Stay tuned for exciting new features 
 
 
 
+![photo_2024-07-24_10-02-06](https://github.com/user-attachments/assets/624aeae0-1bc6-4d3b-bf52-5f3e7b610e13)
 
-![photo_5_2024-07-15_15-54-41](https://github.com/user-attachments/assets/c8394d13-da0e-4523-85c7-80d670cf938b)
-![photo_4_2024-07-15_15-54-41](https://github.com/user-attachments/assets/69a1c84b-ba2e-4b9b-98ef-9cea7f76a551)
-![photo_3_2024-07-15_15-54-41](https://github.com/user-attachments/assets/4f868c24-e74a-4d1f-8b21-8f1e2099159b)
-![photo_2_2024-07-15_15-54-41](https://github.com/user-attachments/assets/b222dc67-072a-4e9a-ae47-4f2113b89f07)
-![photo_1_2024-07-15_15-54-41](https://github.com/user-attachments/assets/563cfc83-d8c4-45eb-8028-70806c1ba4fb)
+
